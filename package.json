@@ -7,5 +7,6 @@
     "license": "BSD 3-clause",
     "sourcePaths": ["."],
     "importPaths": [],
-    "targetType": "executable"
+    "targetType": "executable",
+    "targetPath": "."
 }
