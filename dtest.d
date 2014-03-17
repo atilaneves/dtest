@@ -200,7 +200,7 @@ private auto writeFile(in Options options, in string[] modules) {
     wfile.writeln("import std.stdio;");
     wfile.writeln("");
     wfile.writeln("int main(string[] args) {");
-    wfile.writeln(`    writeln("\nAutomatically generated file ` ~ options.fileName ~ `");`);
+    wfile.writeln(`    writeln("\nAutomatically generated file ` ~ options.fileName.replace("\\", "\\\\") ~ `");`);
     wfile.writeln("    writeln(`Running unit tests from dirs " ~ options.dirs.to!string ~ "\n`);");
     wfile.writeln("    return runTests!(" ~ modules.map!(a => `"` ~ a ~ `"`).join(", ") ~ ")(args);");
     wfile.writeln("}");
