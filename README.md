@@ -34,19 +34,26 @@ This means `rdmd` must be installed for this program to work.
     file that imports all of them then running that source file with rdmd.
     By default the source file is a randomly named temporary file but that
     can be changed with the -f option. If the unit_threaded library is not
-    in the default search paths then it must be specified with the -u option.
+    in the default search paths then it can be specified with the -u option.
+    If the --nodub option is not used, `dtest` defaults to using dub
+    to fetch unit-threaded so that the library need not be downloaded nor
+    have its location specified manually.
     If any command-line arguments exist they will be forwarded to the
     unit_threaded library and used as the names of the tests to run. If
     none are specified, all of them are run.
 
     To run all tests located in a directory called "tests":
 
-    dtest -u<PATH_TO_UNIT_THREADED>
+    dtest
 
     To run all tests in dir1, dir2, etc.:
 
-    dtest -u<PATH_TO_UNIT_THREADED> -t dir1 -t dir2...
+    dtest -t dir1 -t dir2...
 
     To run tests foo and bar in directory mydir:
 
-    dtest -u<PATH_TO_UNIT_THREADED> -t mydir mydir.foo mydir.bar
+    dtest -t mydir mydir.foo mydir.bar
+
+    To run tests foo and bar in directory mydir in a single thread:
+
+    dtest -t mydir -s mydir.foo mydir.bar
