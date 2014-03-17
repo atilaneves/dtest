@@ -89,7 +89,7 @@ private Options getOptions(string[] args) {
     }
 
     if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
-    if(!options.unit_threaded) options.unit_threaded = "~/.dub/packages/unit-threaded-master";
+    if(!options.unit_threaded) options.unit_threaded = getDubUnitThreadedDir();
 
     if(options.fileName) {
         options.fileNameSpecified = true;
@@ -102,6 +102,16 @@ private Options getOptions(string[] args) {
     if(options.verbose) writeln(__FILE__, ": finding all test cases in ", options.dirs);
 
     return options;
+}
+
+private string getDubUnitThreadedDir() {
+    import std.c.stdlib;
+    enum suffix = "packages/unit-threaded-master";
+    version(Windows) {
+        return getEnv("APPDATA").to!string ~ "/dub/" ~ suffix;
+    } else {
+        return "~/.dub/" ~ suffix;
+    }
 }
 
 private void printHelp() {
