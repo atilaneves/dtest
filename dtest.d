@@ -84,23 +84,23 @@ private Options getOptions(string[] args) {
         return options;
     }
 
-    if(!options.unit_threaded && !options.fileName) {
+    if(!options.unit_threaded && !options.fileName && options.nodub) {
         writeln("Path to unit_threaded library not specified with -u, might fail");
     }
 
-    if(!options.fileName && !options.nodub) {
-        execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
-        if(!options.unit_threaded) options.unit_threaded = "~/.dub/packages/unit-threaded-master";
-    }
+    if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
+    if(!options.unit_threaded) options.unit_threaded = "~/.dub/packages/unit-threaded-master";
 
     if(options.fileName) {
         options.fileNameSpecified = true;
     } else {
         options.fileName = createFileName(); //random filename
     }
+
     if(!options.dirs) options.dirs = ["tests"];
     options.args = args[1..$];
     if(options.verbose) writeln(__FILE__, ": finding all test cases in ", options.dirs);
+
     return options;
 }
 
