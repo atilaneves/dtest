@@ -30,6 +30,7 @@ int main(string[] args) {
         writeRdmdArgsOutString(rdmdArgs);
         return 0;
     }
+
     immutable rdmd = executeRdmd(options);
     writeln(rdmd.output);
 
@@ -51,6 +52,7 @@ private struct Options {
     bool debugOutput;
     bool single;
     bool list;
+    bool nodub;
     string[] getRunnerArgs() const {
         auto args = ["--esccodes"];
         if(single) args ~= "--single";
@@ -73,7 +75,8 @@ private Options getOptions(string[] args) {
            //these are unit_threaded options
            "single|s", &options.single, //single-threaded
            "debug|d", &options.debugOutput, //print debug output
-           "list|l", &options.list
+           "list|l", &options.list,
+           "nodub|n", &options.nodub
         );
 
     if(options.help) {
@@ -83,6 +86,11 @@ private Options getOptions(string[] args) {
 
     if(!options.unit_threaded && !options.fileName) {
         writeln("Path to unit_threaded library not specified with -u, might fail");
+    }
+
+    if(!options.fileName && !options.nodub) {
+        execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
+        if(!options.unit_threaded) options.unit_threaded = "~/.dub/packages/unit-threaded-master";
     }
 
     if(options.fileName) {
