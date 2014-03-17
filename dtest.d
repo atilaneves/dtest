@@ -165,7 +165,7 @@ auto findModuleEntries(in string[] dirs) {
     foreach(dir; dirs) {
         enforce(isDir(dir), dir ~ " is not a directory name");
         auto entries = dirEntries(dir, "*.d", SpanMode.depth);
-        auto normalised = map!(a => DirEntry(buildNormalizedPath(a)))(entries);
+        auto normalised = entries.map!(a => DirEntry(buildNormalizedPath(a)));
         modules ~= array(normalised);
     }
     return modules;
@@ -173,7 +173,7 @@ auto findModuleEntries(in string[] dirs) {
 
 auto findModuleNames(in string[] dirs) {
     //cut off extension
-    return array(map!(a => replace(a.name[0 .. $-2], dirSeparator, "."))(findModuleEntries(dirs)));
+    return findModuleEntries(dirs).map!(a => replace(a.name[0 .. $-2], dirSeparator, ".")).array;
 }
 
 private auto writeFile(in Options options, in string[] modules) {
@@ -183,8 +183,8 @@ private auto writeFile(in Options options, in string[] modules) {
     wfile.writeln("");
     wfile.writeln("int main(string[] args) {");
     wfile.writeln(`    writeln("\nAutomatically generated file ` ~ options.fileName ~ `");`);
-    wfile.writeln("    writeln(`Running unit tests from dirs " ~ to!string(options.dirs) ~ "\n`);");
-    wfile.writeln("    return runTests!(" ~ join(map!(a => `"` ~ a ~ `"`)(modules), ", ") ~ ")(args);");
+    wfile.writeln("    writeln(`Running unit tests from dirs " ~ options.dirs.to!string ~ "\n`);");
+    wfile.writeln("    return runTests!(" ~ modules.map!(a => `"` ~ a ~ `"`).join(", ") ~ ")(args);");
     wfile.writeln("}");
     wfile.close();
 
@@ -205,8 +205,8 @@ private void printFile(in Options options, File file) {
 
 private auto getRdmdArgs(in Options options) {
     const testIncludeDirs = options.dirs ~ options.unit_threaded ? [options.unit_threaded] : [];
-    const testIncludes = array(map!(a => "-I" ~ a)(testIncludeDirs));
-    const moreIncludes = array(map!(a => "-I" ~ a)(options.includes));
+    const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
+    const moreIncludes = options.includes.map!(a => "-I" ~ a).array;
     const includes = testIncludes ~ moreIncludes;
     return [ "rdmd" ] ~ includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
 }
