@@ -27,7 +27,7 @@ int main(string[] args) {
     writeFile(options, findModuleNames(options.dirs));
     if(options.fileNameSpecified) {
         auto rdmdArgs = getRdmdArgs(options);
-        writeRdmdArgsOutString(rdmdArgs);
+        writeRdmdArgsOutString(options.fileName, rdmdArgs);
         return 0;
     }
 
@@ -211,12 +211,12 @@ private auto getRdmdArgs(in Options options) {
     return [ "rdmd" ] ~ includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
 }
 
-private auto writeRdmdArgsOutString(string[] args) {
-    return writeln("Execute unit test binary with: ", join(args, " "));
+private auto writeRdmdArgsOutString(in string fileName, string[] args) {
+    return writeln("Execute unit test file ", fileName, " with: ", join(args, " "));
 }
 
 private auto executeRdmd(in Options options) {
     auto rdmdArgs = getRdmdArgs(options);
-    if(options.verbose) writeRdmdArgsOutString(rdmdArgs);
+    if(options.verbose) writeRdmdArgsOutString(options.fileName, rdmdArgs);
     return execute(rdmdArgs);
 }
