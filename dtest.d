@@ -108,7 +108,7 @@ private string getDubUnitThreadedDir() {
     import std.c.stdlib;
     enum suffix = "packages/unit-threaded-master";
     version(Windows) {
-        return getEnv("APPDATA").to!string ~ "/dub/" ~ suffix;
+        return getenv("APPDATA").to!string ~ "/dub/" ~ suffix;
     } else {
         return "~/.dub/" ~ suffix;
     }
