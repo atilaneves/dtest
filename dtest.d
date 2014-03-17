@@ -81,6 +81,10 @@ private Options getOptions(string[] args) {
         return options;
     }
 
+    if(!options.unit_threaded && !options.fileName) {
+        writeln("Path to unit_threaded library not specified with -u, might fail");
+    }
+
     if(options.fileName) {
         options.fileNameSpecified = true;
     } else {
