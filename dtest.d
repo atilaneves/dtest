@@ -226,7 +226,7 @@ private auto getRdmdArgs(in Options options) {
     const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
     const moreIncludes = options.includes.map!(a => "-I" ~ a).array;
     const includes = testIncludes ~ moreIncludes;
-    return [ "rdmd" ] ~ includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
+    return [ "rdmd", "-unittest" ] ~ includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
 }
 
 private auto writeRdmdArgsOutString(in string fileName, string[] args) {
