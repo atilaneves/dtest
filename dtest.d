@@ -107,7 +107,7 @@ private Options getOptions(string[] args) {
 
 private string getDubUnitThreadedDir() {
     import std.c.stdlib;
-    enum suffix = "packages/unit-threaded-master";
+    enum suffix = "packages/unit-threaded-master/source";
     version(Windows) {
         return getenv("APPDATA").to!string ~ "/dub/" ~ suffix;
     } else {
