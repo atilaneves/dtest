@@ -93,7 +93,7 @@ private Options getOptions(string[] args) {
 
     if(options.fileName) {
         options.fileNameSpecified = true;
-        remove(options.fileName);
+        if(exists(options.fileName)) remove(options.fileName);
     } else {
         options.fileName = createFileName(); //random filename
     }
