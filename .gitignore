@@ -1,3 +1,5 @@
 .dub
 dtest
 dtest\.exe
+dtest\.o
+dub\.selections\.json
