@@ -28,6 +28,7 @@ This means `rdmd` must be installed for this program to work.
         -d/--debug: print debugging information from the tests
         -l/--list: list all tests but do not run them
         -n/--nodub: do not run dub fetch to get unit-threaded
+        -c/--compiler: Set the compiler (default is dmd)
 
     This will run all unit tests encountered in the given directories
     (see -t option). It does this by scanning them and writing a D source

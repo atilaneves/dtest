@@ -53,6 +53,7 @@ private struct Options {
     bool single;
     bool list;
     bool nodub;
+    string compiler;
     string[] getRunnerArgs() const {
         auto args = ["--esccodes"];
         if(single) args ~= "--single";
@@ -76,7 +77,8 @@ private Options getOptions(string[] args) {
            "single|s", &options.single, //single-threaded
            "debug|d", &options.debugOutput, //print debug output
            "list|l", &options.list,
-           "nodub|n", &options.nodub
+           "nodub|n", &options.nodub,
+           "compiler|c", &options.compiler,
         );
 
     if(options.help) {
@@ -101,6 +103,8 @@ private Options getOptions(string[] args) {
     if(!options.dirs) options.dirs = ["tests"];
     options.args = args[1..$];
     if(options.verbose) writeln(__FILE__, ": finding all test cases in ", options.dirs);
+
+    if(!options.compiler) options.compiler = "dmd";
 
     return options;
 }
@@ -132,6 +136,7 @@ Usage: dtest [options] [test1] [test2]...
         -d/--debug: print debugging information from the tests
         -l/--list: list all tests but do not run them
         -n/--nodub: do not run dub fetch to get unit-threaded
+        -c/--compiler: Set the compiler (default is dmd)
 
     This will run all unit tests encountered in the given directories
     (see -t option). It does this by scanning them and writing a D source
@@ -228,7 +233,8 @@ private auto getRdmdArgs(in Options options) {
     const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
     const moreIncludes = options.includes.map!(a => "-I" ~ a).array;
     const includes = testIncludes ~ moreIncludes;
-    return [ "rdmd", "-unittest" ] ~ includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
+    return [ "rdmd", "-unittest", "--compiler=" ~ options.compiler ] ~
+        includes ~ options.fileName ~ options.getRunnerArgs() ~ options.args;
 }
 
 private auto writeRdmdArgsOutString(in string fileName, string[] args) {
