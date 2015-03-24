@@ -215,8 +215,12 @@ private auto writeFile(in Options options, in string[] modules) {
     wfile.writeln("");
     wfile.writeln("int main(string[] args) {");
     wfile.writeln(`    writeln("\nAutomatically generated file ` ~ options.fileName.replace("\\", "\\\\") ~ `");`);
-    wfile.writeln("    writeln(`Running unit tests from dirs " ~ options.dirs.to!string ~ "\n`);");
-    wfile.writeln("    return runTests!(" ~ modules.map!(a => `"` ~ a ~ `"`).join(", ") ~ ")(args);");
+    wfile.writeln("    writeln(`Running unit tests from dirs " ~ options.dirs.to!string ~ "`);");
+
+    immutable indent = "                          ";
+    wfile.writeln("    return args.runTests!(\n" ~
+                  modules.map!(a => indent ~ `"` ~ a ~ `"`).join(",\n") ~
+                  "\n" ~ indent ~ ");");
     wfile.writeln("}");
     wfile.close();
 
