@@ -22,7 +22,7 @@ import std.getopt;
  */
 int main(string[] args) {
     const options = getOptions(args);
-    if(options.help) return 0;
+    if(options.help || options.showVersion) return 0;
 
     writeFile(options, findModuleNames(options.dirs));
     if(options.fileNameSpecified) {
@@ -54,6 +54,7 @@ private struct Options {
     bool list;
     bool nodub;
     string compiler;
+    bool showVersion;
     string[] getRunnerArgs() const {
         auto args = ["--esccodes"];
         if(single) args ~= "--single";
@@ -79,10 +80,16 @@ private Options getOptions(string[] args) {
            "list|l", &options.list,
            "nodub|n", &options.nodub,
            "compiler|c", &options.compiler,
+           "version", &options.showVersion,
         );
 
     if(options.help) {
         printHelp();
+        return options;
+    }
+
+    if(options.showVersion) {
+        writeln("dtest version v0.2.5");
         return options;
     }
 
