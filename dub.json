@@ -1,0 +1,12 @@
+{
+    "name": "dtest",
+    "description": "Easy unit-testing for D",
+    "homepage": "https://github.com/atilaneves/dtest",
+    "authors": ["Atila Neves"],
+    "license": "BSD 3-clause",
+    "targetType": "executable",
+    "targetPath": "bin",
+    "dependencies": {
+        "unit-threaded": "~experimental"
+    }
+}

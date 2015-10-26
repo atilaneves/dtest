@@ -1,5 +1,3 @@
 .dub
-dtest
-dtest\.exe
-dtest\.o
+bin
 dub\.selections\.json
