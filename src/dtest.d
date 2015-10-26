@@ -16,6 +16,10 @@ import std.conv;
 import std.process;
 import std.getopt;
 import std.string: strip;
+import unit_threaded.runtime;
+
+alias GenOptions = unit_threaded.runtime.Options;
+
 
 /**
  * args is a filename and a list of directories to search in
@@ -26,22 +30,17 @@ int main(string[] args) {
     if(options.help || options.showVersion) return 0;
 
     writeFile(options, findModuleNames(options.dirs));
-    if(options.fileNameSpecified) {
-        auto rdmdArgs = getRdmdArgs(options);
-        writeRdmdArgsOutString(options.fileName, rdmdArgs);
-        return 0;
-    }
-
     immutable rdmd = executeRdmd(options);
     writeln(rdmd.output);
 
     return rdmd.status;
 }
 
-private struct Options {
+private struct DtestOptions {
+    GenOptions genOptions;
+
     //dtest options
     bool verbose;
-    bool fileNameSpecified;
     string fileName;
     string[] dirs;
     string[] includes;
@@ -65,8 +64,8 @@ private struct Options {
     }
 }
 
-private Options getOptions(string[] args) {
-    Options options;
+private DtestOptions getOptions(string[] args) {
+    DtestOptions options;
     getopt(args,
            //dtest options
            "verbose|v", &options.verbose,
@@ -101,9 +100,7 @@ private Options getOptions(string[] args) {
     if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
     if(!options.unit_threaded) options.unit_threaded = getDubUnitThreadedDir();
 
-    if(options.fileName) {
-        options.fileNameSpecified = true;
-    } else {
+    if(!options.fileName) {
         options.fileName = createFileName(); //random filename
     }
 
@@ -207,7 +204,7 @@ auto findModuleNames(in string[] dirs) {
     return findModuleEntries(dirs).map!(a => replace(a.name[0 .. $-2], dirSeparator, ".")).array;
 }
 
-private void writeFile(in Options options, in string[] modules) {
+private void writeFile(in DtestOptions options, in string[] modules) {
     if(!haveToUpdate(options, modules))
         return;
 
@@ -234,7 +231,7 @@ private void writeFile(in Options options, in string[] modules) {
     printFile(options, rfile);
 }
 
-private void printFile(in Options options, File file) {
+private void printFile(in DtestOptions options, File file) {
     if(!options.verbose) return;
     writeln("Executing this code:\n");
     foreach(line; file.byLine()) {
@@ -244,7 +241,7 @@ private void printFile(in Options options, File file) {
     file.rewind();
 }
 
-private auto getRdmdArgs(in Options options) {
+private auto getRdmdArgs(in DtestOptions options) {
     const testIncludeDirs = options.dirs ~ options.unit_threaded ? [options.unit_threaded] : [];
     const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
     const moreIncludes = options.includes.map!(a => "-I" ~ a).array;
@@ -257,14 +254,14 @@ private auto writeRdmdArgsOutString(in string fileName, string[] args) {
     return writeln("Execute unit test file ", fileName, " with: ", join(args, " "));
 }
 
-private auto executeRdmd(in Options options) {
+private auto executeRdmd(in DtestOptions options) {
     auto rdmdArgs = getRdmdArgs(options);
     if(options.verbose) writeRdmdArgsOutString(options.fileName, rdmdArgs);
     return execute(rdmdArgs);
 }
 
 
-private bool haveToUpdate(in Options options, in string[] modules) {
+private bool haveToUpdate(in DtestOptions options, in string[] modules) {
     if (!options.fileName.exists)
         return true;
 
