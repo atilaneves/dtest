@@ -97,7 +97,7 @@ private DtestOptions getOptions(string[] args) {
         writeln("Path to unit_threaded library not specified with -u, might fail");
     }
 
-    if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~master"]);
+    if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~experimental"]);
     if(!options.unit_threaded) options.unit_threaded = getDubUnitThreadedDir();
 
     if(!options.fileName) {
