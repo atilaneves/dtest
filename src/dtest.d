@@ -39,6 +39,7 @@ int run(string[] args) {
     if(options.earlyExit) return 0;
 
     options.genOptions.fileName = writeUtMainFile(options.genOptions);
+    if(options.onlyGenerate) return 0;
 
     immutable rdmd = executeRdmd(options);
     writeln(rdmd.output);
@@ -50,7 +51,6 @@ private struct DtestOptions {
     GenOptions genOptions;
 
     //dtest options
-    bool verbose;
     string[] includes;
     string unit_threaded;
     bool onlyGenerate;
@@ -79,7 +79,7 @@ private DtestOptions getOptions(string[] args) {
         args,
 
         //dtest options
-        "verbose|v", "Verbose output", &options.verbose,
+        "verbose|v", "Verbose output", &options.genOptions.verbose,
         "file|f", "The file to write to containing the main function", &options.genOptions.fileName,
         "unit_threaded|u", "Path to the unit-threaded library", &options.unit_threaded,
         "test|t", "Test directory(ies)", &options.genOptions.dirs,
@@ -118,7 +118,7 @@ private DtestOptions getOptions(string[] args) {
 
     if(!options.genOptions.dirs) options.genOptions.dirs = ["tests"];
     options.args = args[1..$];
-    if(options.verbose) writeln(__FILE__, ": finding all test cases in ", options.genOptions.dirs);
+    if(options.genOptions.verbose) writeln(__FILE__, ": finding all test cases in ", options.genOptions.dirs);
 
     if(!options.compiler) options.compiler = "dmd";
 
@@ -196,7 +196,7 @@ private void writeFile(in DtestOptions options, in string[] modules) {
 }
 
 private void printFile(in DtestOptions options, File file) {
-    if(!options.verbose) return;
+    if(!options.genOptions.verbose) return;
     writeln("Executing this code:\n");
     foreach(line; file.byLine()) {
         writeln(line);
@@ -220,7 +220,7 @@ private auto writeRdmdArgsOutString(in string fileName, string[] args) {
 
 private auto executeRdmd(in DtestOptions options) {
     auto rdmdArgs = getRdmdArgs(options);
-    if(options.verbose) writeRdmdArgsOutString(options.genOptions.fileName, rdmdArgs);
+    if(options.genOptions.verbose) writeRdmdArgsOutString(options.genOptions.fileName, rdmdArgs);
     return execute(rdmdArgs);
 }
 
