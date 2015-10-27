@@ -142,7 +142,7 @@ private string getDubUnitThreadedDir() {
 
 private void dubFetch(in string dirName) {
     if(!dirName.exists) {
-        writeln("Couldn't find ", dirName, " running 'dub fetch'");
+        writeln("Couldn't find ", dirName, ", running 'dub fetch'");
         immutable cmd = ["dub", "fetch", "unit-threaded", "--version=" ~ unitThreadedVersion];
         immutable res = execute(cmd);
         enforce(res.status == 0, text("Could not execute ", cmd.join(" "), " :\n", res.output));
