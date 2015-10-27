@@ -65,20 +65,24 @@ private struct DtestOptions {
 
 private DtestOptions getOptions(string[] args) {
     DtestOptions options;
-    auto getOptRes = getopt(args,
-           //dtest options
-           "verbose|v", &options.verbose,
-           "file|f", &options.genOptions.fileName,
-           "unit_threaded|u", &options.unit_threaded,
-           "test|t", &options.genOptions.dirs,
-           "I", &options.includes,
-           //these are unit_threaded options
-           "single|s", &options.single, //single-threaded
-           "debug|d", &options.debugOutput, //print debug output
-           "list|l", &options.list,
-           "nodub|n", &options.nodub,
-           "compiler|c", &options.compiler,
-           "version", &options.showVersion,
+    auto getOptRes = getopt(
+        args,
+
+        //dtest options
+        "verbose|v", "Verbose output", &options.verbose,
+        "file|f", "The file to write to containing the main function", &options.genOptions.fileName,
+        "unit_threaded|u", "Path to the unit-threaded library", &options.unit_threaded,
+        "test|t", "Test directory(ies)", &options.genOptions.dirs,
+        "I", "Import paths", &options.includes,
+        "generate", "Only generate the output file, don't run tests",
+        "nodub|n", "Don't call dub fetch to get unit-threaded", &options.nodub,
+        "version", "print version", &options.showVersion,
+
+        //these are unit_threaded options
+        "single|s", "Run in single-threaded mode", &options.single, //single-threaded
+        "debug|d", "Run in debug mode (print output)", &options.debugOutput, //print debug output
+        "list|l", "List tests", &options.list,
+        "compiler|c", "Compiler to use when running tests with rdmd", &options.compiler,
         );
 
     if(getOptRes.helpWanted) {
