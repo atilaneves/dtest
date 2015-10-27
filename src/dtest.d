@@ -110,7 +110,7 @@ private DtestOptions getOptions(string[] args) {
         dubFetch(options.unit_threaded);
     }
 
-    if(!options.genOptions.dirs) options.genOptions.dirs = ["tests"];
+    if(!options.genOptions.dirs) options.genOptions.dirs = ["."];
     options.args = args[1..$];
     if(options.genOptions.verbose) writeln(__FILE__, ": finding all test cases in ", options.genOptions.dirs);
 
