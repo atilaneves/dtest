@@ -61,7 +61,6 @@ private struct DtestOptions {
     bool debugOutput;
     bool single;
     bool list;
-    bool nodub;
     string compiler;
     bool showVersion;
     string[] getRunnerArgs() const {
@@ -85,7 +84,6 @@ private DtestOptions getOptions(string[] args) {
         "test|t", "Test directory(ies)", &options.genOptions.dirs,
         "I", "Import paths", &options.includes,
         "generate", "Only generate the output file, don't run tests", &options.onlyGenerate,
-        "nodub|n", "Don't call dub fetch to get unit-threaded", &options.nodub,
         "version", "print version", &options.showVersion,
 
         //these are unit_threaded options
@@ -105,10 +103,6 @@ private DtestOptions getOptions(string[] args) {
         writeln("dtest version v0.2.5");
         options.earlyExit = true;
         return options;
-    }
-
-    if(!options.unit_threaded && !options.genOptions.fileName && options.nodub) {
-        writeln("Path to unit_threaded library not specified with -u, might fail");
     }
 
     if(!options.unit_threaded) {
@@ -137,17 +131,21 @@ private string unitThreadedSuffix() @safe pure nothrow {
         return buildPath("packages", middleDirName, "source");
 }
 
-private void dubFetch(in string dirName) {
-    if(!dirName.exists)
-        execute(["dub", "fetch", "unit-threaded", "--version=" ~ unitThreadedVersion]);
-}
-
 private string getDubUnitThreadedDir() {
     version(Windows) {
         import std.process: environment;
         return buildPath(environment["APPDATA"], "dub", unitThreadedSuffix);
     } else {
-        return "~/.dub/" ~ unitThreadedSuffix;
+        return expandTilde(buildPath("~", ".dub", unitThreadedSuffix));
+    }
+}
+
+private void dubFetch(in string dirName) {
+    if(!dirName.exists) {
+        writeln("Couldn't find ", dirName, " running 'dub fetch'");
+        immutable cmd = ["dub", "fetch", "unit-threaded", "--version=" ~ unitThreadedVersion];
+        immutable res = execute(cmd);
+        enforce(res.status == 0, text("Could not execute ", cmd.join(" "), " :\n", res.output));
     }
 }
 
