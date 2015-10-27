@@ -26,8 +26,17 @@ alias GenOptions = unit_threaded.runtime.Options;
  * the filename is the 1st element, the others are directories.
  */
 int main(string[] args) {
+    try {
+        return run(args);
+    } catch(Exception ex) {
+        stderr.writeln(ex.msg);
+        return 1;
+    }
+}
+
+int run(string[] args) {
     auto options = getOptions(args);
-    if(options.help || options.showVersion) return 0;
+    if(options.earlyExit) return 0;
 
     options.genOptions.fileName = writeUtMainFile(options.genOptions);
 
@@ -44,7 +53,8 @@ private struct DtestOptions {
     bool verbose;
     string[] includes;
     string unit_threaded;
-    bool help;
+    bool onlyGenerate;
+    bool earlyExit;
 
     //unit_threaded.runner options
     string[] args;
@@ -74,7 +84,7 @@ private DtestOptions getOptions(string[] args) {
         "unit_threaded|u", "Path to the unit-threaded library", &options.unit_threaded,
         "test|t", "Test directory(ies)", &options.genOptions.dirs,
         "I", "Import paths", &options.includes,
-        "generate", "Only generate the output file, don't run tests",
+        "generate", "Only generate the output file, don't run tests", &options.onlyGenerate,
         "nodub|n", "Don't call dub fetch to get unit-threaded", &options.nodub,
         "version", "print version", &options.showVersion,
 
@@ -87,12 +97,13 @@ private DtestOptions getOptions(string[] args) {
 
     if(getOptRes.helpWanted) {
         defaultGetoptPrinter("usage: dtests [options] [tests]", getOptRes.options);
-        options.help = true;
+        options.earlyExit = true;
         return options;
     }
 
     if(options.showVersion) {
         writeln("dtest version v0.2.5");
+        options.earlyExit = true;
         return options;
     }
 
@@ -100,8 +111,10 @@ private DtestOptions getOptions(string[] args) {
         writeln("Path to unit_threaded library not specified with -u, might fail");
     }
 
-    if(!options.nodub) execute(["dub", "fetch", "unit-threaded", "--version=~experimental"]);
-    if(!options.unit_threaded) options.unit_threaded = getDubUnitThreadedDir();
+    if(!options.unit_threaded) {
+        options.unit_threaded = getDubUnitThreadedDir();
+        dubFetch(options.unit_threaded);
+    }
 
     if(!options.genOptions.dirs) options.genOptions.dirs = ["tests"];
     options.args = args[1..$];
@@ -112,13 +125,29 @@ private DtestOptions getOptions(string[] args) {
     return options;
 }
 
+private string unitThreadedVersion() @safe pure nothrow {
+    return "~master";
+}
+
+private string unitThreadedSuffix() @safe pure nothrow {
+    immutable middleDirName = "unit-threaded-" ~
+        (unitThreadedVersion[0] == '~'
+        ? unitThreadedVersion[1..$]
+         : unitThreadedVersion);
+        return buildPath("packages", middleDirName, "source");
+}
+
+private void dubFetch(in string dirName) {
+    if(!dirName.exists)
+        execute(["dub", "fetch", "unit-threaded", "--version=" ~ unitThreadedVersion]);
+}
+
 private string getDubUnitThreadedDir() {
-    import std.c.stdlib;
-    enum suffix = "packages/unit-threaded-master/source";
     version(Windows) {
-        return getenv("APPDATA").to!string ~ "/dub/" ~ suffix;
+        import std.process: environment;
+        return buildPath(environment["APPDATA"], "dub", unitThreadedSuffix);
     } else {
-        return "~/.dub/" ~ suffix;
+        return "~/.dub/" ~ unitThreadedSuffix;
     }
 }
 
