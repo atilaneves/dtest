@@ -72,6 +72,7 @@ private struct DtestOptions {
 }
 
 private DtestOptions getOptions(string[] args) {
+
     DtestOptions options;
     auto getOptRes = getopt(
         args,
@@ -115,6 +116,19 @@ private DtestOptions getOptions(string[] args) {
 
     if(!options.compiler) options.compiler = "dmd";
 
+    import dub;
+    return isDubProject ? getOptionsDub(options) : options;
+}
+
+private DtestOptions getOptionsDub(DtestOptions options) {
+    import dub;
+    import std.array;
+    import std.path;
+
+    auto dubInfo = getDubInfo;
+    options.genOptions.includes = dubInfo.packages.
+        map!(a => a.importPaths.map!(b => buildPath(a.path, b)).array).
+        reduce!((a, b) => a ~ b).array;
     return options;
 }
 
