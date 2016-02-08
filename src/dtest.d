@@ -85,7 +85,7 @@ private DtestOptions getOptions(string[] args) {
         "version", "print version", &options.showVersion,
 
         //these are unit_threaded options
-        "I", "Import paths", &options.genOptions.includes,
+        "I", "Import paths as would be passed to the compiler", &options.genOptions.includes,
         "single|s", "Run in single-threaded mode", &options.single, //single-threaded
         "debug|d", "Run in debug mode (print output)", &options.debugOutput, //print debug output
         "list|l", "List tests", &options.list,
@@ -99,7 +99,7 @@ private DtestOptions getOptions(string[] args) {
     }
 
     if(options.showVersion) {
-        writeln("dtest version v0.2.5");
+        writeln("dtest version v0.2.6");
         options.earlyExit = true;
         return options;
     }
