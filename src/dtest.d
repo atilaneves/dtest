@@ -51,7 +51,6 @@ private struct DtestOptions {
     GenOptions genOptions;
 
     //dtest options
-    string[] includes;
     string unit_threaded;
     bool onlyGenerate;
     bool earlyExit;
@@ -82,11 +81,11 @@ private DtestOptions getOptions(string[] args) {
         "file|f", "The file to write to containing the main function", &options.genOptions.fileName,
         "unit_threaded|u", "Path to the unit-threaded library", &options.unit_threaded,
         "test|t", "Test directory(ies)", &options.genOptions.dirs,
-        "I", "Import paths", &options.includes,
         "generate", "Only generate the output file, don't run tests", &options.onlyGenerate,
         "version", "print version", &options.showVersion,
 
         //these are unit_threaded options
+        "I", "Import paths", &options.genOptions.includes,
         "single|s", "Run in single-threaded mode", &options.single, //single-threaded
         "debug|d", "Run in debug mode (print output)", &options.debugOutput, //print debug output
         "list|l", "List tests", &options.list,
@@ -153,7 +152,7 @@ private void dubFetch(in string dirName) {
 private auto getRdmdArgs(in DtestOptions options) {
     const testIncludeDirs = options.genOptions.dirs ~ options.unit_threaded ? [options.unit_threaded] : [];
     const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
-    const moreIncludes = options.includes.map!(a => "-I" ~ a).array;
+    const moreIncludes = options.genOptions.includes.map!(a => "-I" ~ a).array;
     const includes = testIncludes ~ moreIncludes;
     return [ "rdmd", "-unittest", "--compiler=" ~ options.compiler ] ~
         includes ~ options.genOptions.fileName ~ options.getRunnerArgs() ~ options.args;
