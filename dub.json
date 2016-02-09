@@ -7,6 +7,6 @@
     "targetType": "executable",
     "targetPath": "bin",
     "dependencies": {
-        "unit-threaded": "~experimental"
+        "unit-threaded": "~>0.5.8"
     }
 }
