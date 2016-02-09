@@ -4,7 +4,7 @@ import std.array;
 import std.process;
 import std.exception;
 import std.conv;
-
+import std.stdio;
 
 
 struct DubPackage {
@@ -91,7 +91,10 @@ private string[] getOptionalList(JSONValue json, in string key) @trusted {
 }
 
 
-DubInfo getDubInfo() {
+DubInfo getDubInfo(in bool verbose) {
+    if(verbose)
+        writeln("Running dub describe");
+
     immutable args = ["dub", "describe"];
     immutable res = execute(args);
     enforce(res.status == 0, text("Could not execute ", args.join(" "), ":\n", res.output));

@@ -21,10 +21,6 @@ import unit_threaded.runtime;
 alias GenOptions = unit_threaded.runtime.Options;
 
 
-/**
- * args is a filename and a list of directories to search in
- * the filename is the 1st element, the others are directories.
- */
 int main(string[] args) {
     try {
         return run(args);
@@ -38,8 +34,14 @@ int run(string[] args) {
     auto options = getOptions(args);
     if(options.earlyExit) return 0;
 
+    if(options.genOptions.verbose)
+        writeln("Writing main UT file");
+
     options.genOptions.fileName = writeUtMainFile(options.genOptions);
     if(options.onlyGenerate) return 0;
+
+    if(options.genOptions.verbose)
+        writeln("Executing rdmd on main UT file");
 
     immutable rdmd = executeRdmd(options);
     writeln(rdmd.output);
@@ -105,7 +107,13 @@ private DtestOptions getOptions(string[] args) {
         return options;
     }
 
+    if(options.genOptions.verbose)
+        writeln("Options parsed");
+
     if(!options.unit_threaded) {
+        if(options.genOptions.verbose)
+            writeln("Checking/fetching unit-threaded");
+
         options.unit_threaded = getDubUnitThreadedDir();
         dubFetch(options.unit_threaded);
     }
@@ -121,11 +129,15 @@ private DtestOptions getOptions(string[] args) {
 }
 
 private DtestOptions getOptionsDub(DtestOptions options) {
+
     import dub;
     import std.array;
     import std.path;
 
-    auto dubInfo = getDubInfo;
+    auto dubInfo = getDubInfo(options.genOptions.verbose);
+    if(options.genOptions.verbose)
+        writeln("Setting includes from dub");
+
     options.genOptions.includes = dubInfo.packages.
         map!(a => a.importPaths.map!(b => buildPath(a.path, b)).array).
         reduce!((a, b) => a ~ b).array;
@@ -163,7 +175,7 @@ private void dubFetch(in string dirName) {
 }
 
 
-private auto getRdmdArgs(in DtestOptions options) {
+private string[] getRdmdArgs(in DtestOptions options) {
     const testIncludeDirs = options.genOptions.dirs ~ options.unit_threaded ? [options.unit_threaded] : [];
     const testIncludes = testIncludeDirs.map!(a => "-I" ~ a).array;
     const moreIncludes = options.genOptions.includes.map!(a => "-I" ~ a).array;
@@ -172,14 +184,13 @@ private auto getRdmdArgs(in DtestOptions options) {
         includes ~ options.genOptions.fileName ~ options.getRunnerArgs() ~ options.args;
 }
 
-private auto writeRdmdArgsOutString(in string fileName, string[] args) {
-    return writeln("Execute unit test file ", fileName, " with: ", join(args, " "));
-}
 
 private auto executeRdmd(in DtestOptions options) {
     auto rdmdArgs = getRdmdArgs(options);
-    if(options.genOptions.verbose) writeRdmdArgsOutString(options.genOptions.fileName, rdmdArgs);
-    return execute(rdmdArgs);
+    auto res = execute(rdmdArgs);
+    if(options.genOptions.verbose)
+        writeln("Execute unit test file ", options.genOptions.fileName, " with: ", join(rdmdArgs, " "));
+    return res;
 }
 
 
