@@ -1,8 +1,7 @@
 dtest
 =============
 
-###**Warning**: With dmd 2.064.2 on Linux 64-bit and ld.gold this code might crash
-**Upgrade to 2.065 or downgrade to 2.063. No problem on Windows.
+###**Deprecated**: No longer needed with the latest version of [unit-threaded](https://github.com/atilaneves/unit-threaded)**
 
 Utility using [unit-threaded](https://github.com/atilaneves/unit-threaded)
 to run all unit tests in a list of directories. This was written because,
