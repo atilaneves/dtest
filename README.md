@@ -1,7 +1,7 @@
 dtest
 =============
 
-###**Deprecated**: No longer needed with the latest version of [unit-threaded](https://github.com/atilaneves/unit-threaded)**
+###**Deprecated**: No longer needed with the latest version of [unit-threaded](https://github.com/atilaneves/unit-threaded)
 
 Utility using [unit-threaded](https://github.com/atilaneves/unit-threaded)
 to run all unit tests in a list of directories. This was written because,
